@@ -57,12 +57,12 @@
             title: 'Foundations of Ecology',
             icon: <Icons.Leaf className="w-5 h-5 text-green-600" />,
             items: [
-              { term: "Ecology", def: "The study of interactions between organisms and their environment." },
-              { term: "Ecosystem", def: "A community of organisms and their abiotic (non-living) environment interacting as a system." },
-              { term: "Community", def: "All the different populations that live together in an area." },
-              { term: "Population", def: "A group of individuals that belong to the same species and live in the same area." },
-              { term: "Biotic Factors", def: "Living parts of an ecosystem (e.g., plants, animals, bacteria)." },
-              { term: "Abiotic Factors", def: "Non-living parts of an ecosystem (e.g., sunlight, temperature, water, soil)." }
+              { term: "Ecology", def: "The study of interactions between organisms and their environment.", explanation: "Derived from Greek 'oikos' (house). It studies how organisms interact with their 'environmental house'." },
+              { term: "Ecosystem", def: "A community of organisms and their abiotic (non-living) environment interacting as a system.", explanation: "The keyword is 'System'. It combines the living team (biotic) with the non-living playing field (abiotic)." },
+              { term: "Community", def: "All the different populations that live together in an area.", explanation: "Think of a neighborhood. It includes all the neighbors (different species) but not the buildings or weather." },
+              { term: "Population", def: "A group of individuals that belong to the same species and live in the same area.", explanation: "Populations are specific counts. Not just 'birds', but 'all the robins in this specific park'." },
+              { term: "Biotic Factors", def: "Living parts of an ecosystem (e.g., plants, animals, bacteria).", explanation: "'Bio' means life. If it is alive, or was once alive (like a fallen log), it is Biotic." },
+              { term: "Abiotic Factors", def: "Non-living parts of an ecosystem (e.g., sunlight, temperature, water, soil).", explanation: "'A-' means without. These are the physical parts of nature without life, like wind, rocks, and sun." }
             ]
           },
           {
@@ -70,14 +70,14 @@
             title: 'Energy & Trophic Levels',
             icon: <Icons.Zap className="w-5 h-5 text-yellow-500" />,
             items: [
-              { term: "Producers", def: "Organisms that make their own food (autotrophs), usually through photosynthesis." },
-              { term: "Consumers", def: "Organisms that eat other organisms for energy (heterotrophs)." },
-              { term: "Trophic Levels", def: "Steps in a food chain or food web (Producers → Primary Consumers → Secondary Consumers)." },
-              { term: "Energy Transfer", def: "Only about 10% of energy is passed to the next trophic level; 90% is lost as heat." },
-              { term: "Food Chain", def: "A linear sequence showing who eats whom." },
-              { term: "Food Web", def: "A complex network of interconnected food chains." },
-              { term: "Photosynthesis", def: "Process by which plants use sunlight, water, and CO2 to make glucose and oxygen." },
-              { term: "Respiration", def: "Process where organisms break down glucose using oxygen to release energy (ATP), water, and CO2." }
+              { term: "Producers", def: "Organisms that make their own food (autotrophs), usually through photosynthesis.", explanation: "They 'produce' the energy for the entire web. Usually plants or algae." },
+              { term: "Consumers", def: "Organisms that eat other organisms for energy (heterotrophs).", explanation: "They cannot make food, so they must 'consume' (eat) others to survive." },
+              { term: "Trophic Levels", def: "Steps in a food chain or food web (Producers → Primary Consumers → Secondary Consumers).", explanation: "'Troph' means nourishment. Each level represents a step in the transfer of food energy." },
+              { term: "Energy Transfer", def: "Only about 10% of energy is passed to the next trophic level; 90% is lost as heat.", explanation: "This is why there are millions of plants but only a few tigers. Energy runs out as you go up!" },
+              { term: "Food Chain", def: "A linear sequence showing who eats whom.", explanation: "Think of a chain: it connects one link directly to the next in a straight line." },
+              { term: "Food Web", def: "A complex network of interconnected food chains.", explanation: "Nature is messy! Animals eat multiple things, creating a 'web' of connections rather than a line." },
+              { term: "Photosynthesis", def: "Process by which plants use sunlight, water, and CO2 to make glucose and oxygen.", explanation: "Photo (Light) + Synthesis (To Make). Plants use light energy to build sugar." },
+              { term: "Respiration", def: "Process where organisms break down glucose using oxygen to release energy (ATP), water, and CO2.", explanation: "It's the reverse of photosynthesis. We burn sugar to release the energy we need to move." }
             ]
           },
           {
@@ -85,11 +85,11 @@
             title: 'Species Interactions',
             icon: <Icons.Brain className="w-5 h-5 text-purple-500" />,
             items: [
-              { term: "Predation", def: "One organism (predator) kills and eats another (prey)." },
-              { term: "Competition", def: "Struggle between organisms for limited resources (food, space, mates)." },
-              { term: "Parasitism", def: "One organism benefits (parasite) while the other is harmed (host)." },
-              { term: "Mutualism", def: "Both organisms benefit from the relationship (+/+)." },
-              { term: "Commensalism", def: "One organism benefits, the other is neither helped nor harmed (+/0)." }
+              { term: "Predation", def: "One organism (predator) kills and eats another (prey).", explanation: "A clear win-lose situation. One gets lunch, the other becomes lunch." },
+              { term: "Competition", def: "Struggle between organisms for limited resources (food, space, mates).", explanation: "Like a sports match, both sides have to work harder to win the prize (resources)." },
+              { term: "Parasitism", def: "One organism benefits (parasite) while the other is harmed (host).", explanation: "The parasite usually wants the host to stay alive (for a while) to keep stealing resources." },
+              { term: "Mutualism", def: "Both organisms benefit from the relationship (+/+).", explanation: "It's Mutual! Like bees and flowers—bees get food, flowers get pollination." },
+              { term: "Commensalism", def: "One organism benefits, the other is neither helped nor harmed (+/0).", explanation: "Like a bird nesting in a tree. The bird gets a home, the tree doesn't really care." }
             ]
           },
           {
@@ -97,8 +97,8 @@
             title: 'Population Dynamics',
             icon: <Icons.Globe className="w-5 h-5 text-blue-500" />,
             items: [
-              { term: "Carrying Capacity", def: "The maximum population size an environment can sustain indefinitely." },
-              { term: "Limiting Factors", def: "Environmental factors that restrict population growth (e.g., food, water, space, predation)." }
+              { term: "Carrying Capacity", def: "The maximum population size an environment can sustain indefinitely.", explanation: "Think of an elevator's capacity. If you add more individuals than the environment can hold, the system crashes." },
+              { term: "Limiting Factors", def: "Environmental factors that restrict population growth (e.g., food, water, space, predation).", explanation: "These are the walls that stop a population from growing forever." }
             ]
           },
           {
@@ -106,18 +106,18 @@
             title: 'Carbon Cycle & Human Impact',
             icon: <Icons.AlertTriangle className="w-5 h-5 text-red-500" />,
             items: [
-              { term: "Carbon Cycle", def: "Movement of carbon between the atmosphere, biosphere, oceans, and geosphere." },
-              { term: "Carbon Sinks", def: "Reservoirs that absorb more carbon than they release (e.g., forests, oceans)." },
-              { term: "Fossil Fuels", def: "Coal, oil, natural gas formed from ancient organic matter; burning them releases stored carbon." },
-              { term: "Greenhouse Effect", def: "Trapping of heat in the atmosphere by gases like CO2 and methane." },
-              { term: "Anthropogenic Sources", def: "Pollution or changes originating from human activity (e.g., factories, cars)." },
-              { term: "Invasive Species", def: "Non-native species that harm the ecosystem by outcompeting native species." },
-              { term: "Pesticides", def: "Chemicals used to kill pests (e.g., insects, weeds)." },
-              { term: "DDT", def: "A powerful pesticide now banned in many places; known for thinning bird eggshells." },
-              { term: "Bioaccumulation", def: "Build-up of toxins in a SINGLE organism over its lifetime." },
-              { term: "Biomagnification", def: "Increase in toxin concentration as it moves UP the food chain." },
-              { term: "Heavy Metals", def: "Toxic metals (mercury, lead) that persist in the environment and harm health." },
-              { term: "Algal Blooms (Eutrophication)", def: "Rapid algae growth caused by excess nutrients (nitrogen/phosphorus) from runoff, leading to oxygen depletion." }
+              { term: "Carbon Cycle", def: "Movement of carbon between the atmosphere, biosphere, oceans, and geosphere.", explanation: "Carbon doesn't disappear; it cycles. It moves from air to plants to animals and back." },
+              { term: "Carbon Sinks", def: "Reservoirs that absorb more carbon than they release (e.g., forests, oceans).", explanation: "Like a kitchen sink holds water, these places hold carbon, keeping it out of the atmosphere." },
+              { term: "Fossil Fuels", def: "Coal, oil, natural gas formed from ancient organic matter; burning them releases stored carbon.", explanation: "This is ancient sunlight energy stored in dead organisms, compressed over millions of years." },
+              { term: "Greenhouse Effect", def: "Trapping of heat in the atmosphere by gases like CO2 and methane.", explanation: "Like the glass of a greenhouse, these gases let light in but stop heat from escaping." },
+              { term: "Anthropogenic Sources", def: "Pollution or changes originating from human activity (e.g., factories, cars).", explanation: "'Anthro' refers to humans. These are changes caused specifically by us, not nature." },
+              { term: "Invasive Species", def: "Non-native species that harm the ecosystem by outcompeting native species.", explanation: "They are 'invaders' because they have no natural predators in the new area to control them." },
+              { term: "Pesticides", def: "Chemicals used to kill pests (e.g., insects, weeds).", explanation: "'Cide' means to kill. While helpful for farming, they can accidentally harm other important species." },
+              { term: "DDT", def: "A powerful pesticide now banned in many places; known for thinning bird eggshells.", explanation: "A famous lesson in ecology: it saved crops but almost wiped out Bald Eagles." },
+              { term: "Bioaccumulation", def: "Build-up of toxins in a SINGLE organism over its lifetime.", explanation: "You are what you eat. If you keep eating toxins, they 'accumulate' in your body over time." },
+              { term: "Biomagnification", def: "Increase in toxin concentration as it moves UP the food chain.", explanation: "The King eats the Knight who ate the Pawn. The King gets all the toxins from everyone below." },
+              { term: "Heavy Metals", def: "Toxic metals (mercury, lead) that persist in the environment and harm health.", explanation: "These elements (like Mercury) never break down and stick in animal tissues." },
+              { term: "Algal Blooms (Eutrophication)", def: "Rapid algae growth caused by excess nutrients (nitrogen/phosphorus) from runoff, leading to oxygen depletion.", explanation: "Too much fertilizer food makes algae party too hard, blocking the sun and using up all the water's oxygen." }
             ]
           }
         ];
@@ -329,6 +329,17 @@
                          <span className="text-red-700 font-bold flex items-center justify-center gap-2"><Icons.X /> Not quite. The answer was {question.term}.</span>
                        )}
                      </div>
+
+                     {/* Explanation Section */}
+                     <div className="bg-blue-50 p-4 rounded-lg text-left mb-6 border-l-4 border-blue-500 shadow-sm mx-auto max-w-lg">
+                        <h4 className="font-bold text-blue-900 flex items-center gap-2 mb-1 text-sm uppercase tracking-wide">
+                            <Icons.Brain size={16} /> Why is this correct?
+                        </h4>
+                        <p className="text-slate-700 text-sm leading-relaxed">
+                            {question.explanation}
+                        </p>
+                     </div>
+
                      <button 
                        onClick={generateQuestion}
                        className="bg-slate-800 text-white px-8 py-3 rounded-full font-bold hover:bg-slate-700 hover:scale-105 transition-transform flex items-center gap-2 mx-auto"
