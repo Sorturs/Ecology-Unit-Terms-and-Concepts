@@ -229,6 +229,9 @@
           const [isCorrect, setIsCorrect] = useState(null);
           const [streak, setStreak] = useState(0);
           const [animate, setAnimate] = useState(false);
+          
+          // New: Track available questions to prevent repeats
+          const [questionPool, setQuestionPool] = useState([...ALL_TERMS]);
 
           const generateQuestion = () => {
             setShowResult(false);
@@ -236,7 +239,22 @@
             setUserInput('');
             setAnimate(false);
 
-            const target = ALL_TERMS[Math.floor(Math.random() * ALL_TERMS.length)];
+            // Logic to pick a unique question
+            let currentPool = questionPool;
+            
+            // If pool is empty, reset it (User has seen all questions)
+            if (currentPool.length === 0) {
+                currentPool = [...ALL_TERMS];
+            }
+
+            // Pick random index from the CURRENT pool
+            const randomIndex = Math.floor(Math.random() * currentPool.length);
+            const target = currentPool[randomIndex];
+            
+            // Update the pool by removing the chosen question
+            const newPool = currentPool.filter((_, index) => index !== randomIndex);
+            setQuestionPool(newPool);
+
             setQuestion(target);
             
             setTimeout(() => setAnimate(true), 50);
