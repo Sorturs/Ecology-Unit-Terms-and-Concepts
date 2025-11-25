@@ -1,426 +1,469 @@
-import React, { useState, useEffect } from 'react';
-import { BookOpen, Brain, Map, X, Check, ChevronRight, Leaf, Skull, Zap, Globe, AlertTriangle } from 'lucide-react';
-
-// --- DATA & CONTENT ---
-
-const TOPICS = [
-  {
-    id: 'ecology-basics',
-    title: 'Foundations of Ecology',
-    icon: <Leaf className="w-5 h-5 text-green-600" />,
-    items: [
-      { term: "Ecology", def: "The study of interactions between organisms and their environment." },
-      { term: "Ecosystem", def: "A community of organisms and their abiotic (non-living) environment interacting as a system." },
-      { term: "Community", def: "All the different populations that live together in an area." },
-      { term: "Population", def: "A group of individuals that belong to the same species and live in the same area." },
-      { term: "Biotic Factors", def: "Living parts of an ecosystem (e.g., plants, animals, bacteria)." },
-      { term: "Abiotic Factors", def: "Non-living parts of an ecosystem (e.g., sunlight, temperature, water, soil)." }
-    ]
-  },
-  {
-    id: 'energy-flow',
-    title: 'Energy & Trophic Levels',
-    icon: <Zap className="w-5 h-5 text-yellow-500" />,
-    items: [
-      { term: "Producers", def: "Organisms that make their own food (autotrophs), usually through photosynthesis." },
-      { term: "Consumers", def: "Organisms that eat other organisms for energy (heterotrophs)." },
-      { term: "Trophic Levels", def: "Steps in a food chain or food web (Producers → Primary Consumers → Secondary Consumers)." },
-      { term: "Energy Transfer", def: "Only about 10% of energy is passed to the next trophic level; 90% is lost as heat." },
-      { term: "Food Chain", def: "A linear sequence showing who eats whom." },
-      { term: "Food Web", def: "A complex network of interconnected food chains." },
-      { term: "Photosynthesis", def: "Process by which plants use sunlight, water, and CO2 to make glucose and oxygen." },
-      { term: "Respiration", def: "Process where organisms break down glucose using oxygen to release energy (ATP), water, and CO2." }
-    ]
-  },
-  {
-    id: 'interactions',
-    title: 'Species Interactions',
-    icon: <Brain className="w-5 h-5 text-purple-500" />,
-    items: [
-      { term: "Predation", def: "One organism (predator) kills and eats another (prey)." },
-      { term: "Competition", def: "Struggle between organisms for limited resources (food, space, mates)." },
-      { term: "Parasitism", def: "One organism benefits (parasite) while the other is harmed (host)." },
-      { term: "Mutualism", def: "Both organisms benefit from the relationship (+/+)." },
-      { term: "Commensalism", def: "One organism benefits, the other is neither helped nor harmed (+/0)." }
-    ]
-  },
-  {
-    id: 'population-dynamics',
-    title: 'Population Dynamics',
-    icon: <Globe className="w-5 h-5 text-blue-500" />,
-    items: [
-      { term: "Carrying Capacity", def: "The maximum population size an environment can sustain indefinitely." },
-      { term: "Limiting Factors", def: "Environmental factors that restrict population growth (e.g., food, water, space, predation)." }
-    ]
-  },
-  {
-    id: 'cycles-human',
-    title: 'Carbon Cycle & Human Impact',
-    icon: <AlertTriangle className="w-5 h-5 text-red-500" />,
-    items: [
-      { term: "Carbon Cycle", def: "Movement of carbon between the atmosphere, biosphere, oceans, and geosphere." },
-      { term: "Carbon Sinks", def: "Reservoirs that absorb more carbon than they release (e.g., forests, oceans)." },
-      { term: "Fossil Fuels", def: "Coal, oil, natural gas formed from ancient organic matter; burning them releases stored carbon." },
-      { term: "Greenhouse Effect", def: "Trapping of heat in the atmosphere by gases like CO2 and methane." },
-      { term: "Anthropogenic Sources", def: "Pollution or changes originating from human activity (e.g., factories, cars)." },
-      { term: "Invasive Species", def: "Non-native species that harm the ecosystem by outcompeting native species." },
-      { term: "Pesticides", def: "Chemicals used to kill pests (e.g., insects, weeds)." },
-      { term: "DDT", def: "A powerful pesticide now banned in many places; known for thinning bird eggshells." },
-      { term: "Bioaccumulation", def: "Build-up of toxins in a SINGLE organism over its lifetime." },
-      { term: "Biomagnification", def: "Increase in toxin concentration as it moves UP the food chain." },
-      { term: "Heavy Metals", def: "Toxic metals (mercury, lead) that persist in the environment and harm health." },
-      { term: "Algal Blooms (Eutrophication)", def: "Rapid algae growth caused by excess nutrients (nitrogen/phosphorus) from runoff, leading to oxygen depletion." }
-    ]
-  }
-];
-
-// Flattened list for the quiz
-const ALL_TERMS = TOPICS.flatMap(t => t.items);
-
-// --- COMPONENTS ---
-
-const Header = ({ setView, currentView }) => (
-  <header className="bg-slate-900 text-white p-4 sticky top-0 z-50 shadow-lg">
-    <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-      <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Globe className="text-green-400" />
-          Ecology Master Challenge
-        </h1>
-        <p className="text-slate-400 text-sm">Ecosystems, Cycles, and Human Impact</p>
-      </div>
-      <div className="flex bg-slate-800 p-1 rounded-lg">
-        <button
-          onClick={() => setView('quiz')}
-          className={`px-4 py-2 rounded-md font-medium transition-all ${currentView === 'quiz' ? 'bg-green-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-700'}`}
-        >
-          Quiz Challenge
-        </button>
-        <button
-          onClick={() => setView('cheatsheet')}
-          className={`px-4 py-2 rounded-md font-medium transition-all ${currentView === 'cheatsheet' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-700'}`}
-        >
-          Cheat Sheet
-        </button>
-      </div>
-    </div>
-  </header>
-);
-
-const DiagramModal = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white rounded-xl overflow-hidden max-w-3xl w-full shadow-2xl animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
-        <div className="bg-slate-100 p-3 border-b flex justify-between items-center">
-          <h3 className="font-bold text-slate-800">Ecosystem & Carbon Cycle Map</h3>
-          <button onClick={onClose} className="p-1 hover:bg-slate-200 rounded-full"><X className="w-6 h-6" /></button>
-        </div>
-        <div className="p-6 overflow-x-auto bg-slate-50 flex justify-center">
-          <svg width="600" height="400" viewBox="0 0 600 400" className="max-w-full">
-            {/* Background elements */}
-            <rect width="600" height="400" fill="#f0f9ff" />
-            <path d="M0,300 Q150,280 300,320 T600,300 V400 H0 Z" fill="#e2e8f0" /> {/* Ground */}
-            <circle cx="50" cy="50" r="30" fill="#facc15" opacity="0.8" /> {/* Sun */}
-            
-            {/* Arrows */}
-            <defs>
-              <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                <path d="M0,0 L0,6 L9,3 z" fill="#64748b" />
-              </marker>
-              <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                <path d="M0,0 L0,6 L9,3 z" fill="#ef4444" />
-              </marker>
-            </defs>
-
-            {/* Photosynthesis */}
-            <path d="M70,70 Q100,150 120,220" stroke="#facc15" strokeWidth="3" strokeDasharray="5,5" markerEnd="url(#arrow)" />
-            <text x="90" y="140" fontSize="10" fill="#b45309">Energy</text>
-
-            {/* Carbon Cycle Lines */}
-            <path d="M450,250 Q480,150 400,100" stroke="#ef4444" strokeWidth="2" markerEnd="url(#arrowRed)" />
-            <text x="460" y="180" fontSize="10" fill="#991b1b">Combustion (CO₂)</text>
-            
-            <path d="M150,220 Q150,150 200,100" stroke="#ef4444" strokeWidth="2" markerEnd="url(#arrowRed)" />
-            <text x="120" y="160" fontSize="10" fill="#991b1b">Respiration (CO₂)</text>
-
-            <path d="M300,100 Q250,150 200,220" stroke="#22c55e" strokeWidth="2" markerEnd="url(#arrow)" />
-            <text x="260" y="160" fontSize="10" fill="#166534">Photosynthesis (Absorbs CO₂)</text>
-
-            {/* Elements */}
-            <g transform="translate(120, 220)"> {/* Producer */}
-              <path d="M10,40 L10,0 L30,20 M10,0 L-10,20" stroke="#16a34a" strokeWidth="4" fill="none"/>
-              <text x="-15" y="60" className="text-xs font-bold" fill="#15803d">Producer</text>
-            </g>
-
-            <g transform="translate(250, 240)"> {/* Consumer */}
-              <circle cx="20" cy="20" r="15" fill="#f97316" />
-              <text x="-10" y="55" className="text-xs font-bold" fill="#c2410c">Consumer</text>
-            </g>
-
-            <g transform="translate(420, 250)"> {/* Factory */}
-              <rect x="0" y="0" width="40" height="30" fill="#475569" />
-              <rect x="5" y="-20" width="10" height="20" fill="#475569" />
-              <text x="-10" y="50" className="text-xs font-bold" fill="#1e293b">Fossil Fuels</text>
-            </g>
-
-            {/* Trophic Transfer */}
-            <path d="M150,250 L230,250" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)" />
-            <text x="160" y="245" fontSize="10" fill="#475569">Energy (10%)</text>
-            
-          </svg>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Quiz = ({ onToggleMap }) => {
-  const [question, setQuestion] = useState(null);
-  const [options, setOptions] = useState([]);
-  const [selected, setSelected] = useState(null);
-  const [isCorrect, setIsCorrect] = useState(null);
-  const [streak, setStreak] = useState(0);
-  const [animate, setAnimate] = useState(false);
-
-  const generateQuestion = () => {
-    setSelected(null);
-    setIsCorrect(null);
-    setAnimate(false);
-
-    // Pick random term
-    const target = ALL_TERMS[Math.floor(Math.random() * ALL_TERMS.length)];
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecology Master Challenge</title>
     
-    // Pick 3 distractors
-    const distractors = [];
-    while (distractors.length < 3) {
-      const d = ALL_TERMS[Math.floor(Math.random() * ALL_TERMS.length)];
-      if (d.term !== target.term && !distractors.includes(d)) {
-        distractors.push(d);
-      }
-    }
-
-    // Shuffle
-    const allOptions = [target, ...distractors].sort(() => Math.random() - 0.5);
-    setQuestion(target);
-    setOptions(allOptions);
+    <!-- 1. Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
     
-    setTimeout(() => setAnimate(true), 50);
-  };
+    <!-- 2. Load React and ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    
+    <!-- 3. Load Babel (to understand JSX) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  useEffect(() => {
-    generateQuestion();
-  }, []);
+    <style>
+        /* Custom scrollbar for better look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <div id="root"></div>
 
-  const handleSelect = (option) => {
-    if (selected) return;
-    setSelected(option);
-    const correct = option.term === question.term;
-    setIsCorrect(correct);
-    if (correct) setStreak(s => s + 1);
-    else setStreak(0);
-  };
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-  if (!question) return <div>Loading...</div>;
+        // --- ICONS (Replaced Lucide-React with direct SVGs for browser compatibility) ---
+        const Icon = ({ path, className, color }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                {path}
+            </svg>
+        );
 
-  return (
-    <div className="max-w-2xl mx-auto p-4 space-y-6">
-      <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <div className="flex items-center gap-2">
-           <span className="font-bold text-slate-700">Streak:</span>
-           <div className="flex">
-             {[...Array(Math.min(streak, 5))].map((_, i) => (
-               <div key={i} className="w-2 h-6 bg-green-500 mx-0.5 rounded-full animate-pulse" />
-             ))}
-           </div>
-           <span className="ml-2 font-mono text-lg">{streak}</span>
-        </div>
-        <button 
-          onClick={onToggleMap}
-          className="text-blue-600 font-bold hover:underline flex items-center gap-1 text-sm"
-        >
-          <Map size={16} /> Toggle Ecosystem Map
-        </button>
-      </div>
+        const Icons = {
+            Leaf: (props) => <Icon {...props} path={<><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></>} />,
+            Zap: (props) => <Icon {...props} path={<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />} />,
+            Brain: (props) => <Icon {...props} path={<path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z" />} />,
+            Globe: (props) => <Icon {...props} path={<><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></>} />,
+            AlertTriangle: (props) => <Icon {...props} path={<><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></>} />,
+            Map: (props) => <Icon {...props} path={<><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></>} />,
+            X: (props) => <Icon {...props} path={<><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></>} />,
+            Check: (props) => <Icon {...props} path={<polyline points="20 6 9 17 4 12"/>} />,
+            ChevronRight: (props) => <Icon {...props} path={<polyline points="9 18 15 12 9 6"/>} />,
+            Skull: (props) => <Icon {...props} path={<><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></>} />
+        };
 
-      <div className={`bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-500 ${animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-        <div className="bg-slate-800 p-6 text-white min-h-[140px] flex items-center justify-center text-center">
-          <div>
-            <span className="uppercase tracking-widest text-xs font-bold text-slate-400 mb-2 block">Identify this Concept</span>
-            <h2 className="text-xl md:text-2xl font-medium leading-relaxed">
-              "{question.def}"
-            </h2>
-          </div>
-        </div>
+        // --- DATA & CONTENT ---
 
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {options.map((opt, idx) => {
-            let btnClass = "p-4 rounded-xl border-2 text-left transition-all hover:bg-slate-50 font-semibold text-slate-700 ";
-            
-            if (selected) {
-              if (opt.term === question.term) btnClass += "bg-green-100 border-green-500 text-green-800";
-              else if (opt === selected) btnClass += "bg-red-100 border-red-500 text-red-800";
-              else btnClass += "border-slate-100 opacity-50";
-            } else {
-              btnClass += "border-slate-200 hover:border-blue-400 hover:shadow-md cursor-pointer";
-            }
+        const TOPICS = [
+          {
+            id: 'ecology-basics',
+            title: 'Foundations of Ecology',
+            icon: <Icons.Leaf className="w-5 h-5 text-green-600" />,
+            items: [
+              { term: "Ecology", def: "The study of interactions between organisms and their environment." },
+              { term: "Ecosystem", def: "A community of organisms and their abiotic (non-living) environment interacting as a system." },
+              { term: "Community", def: "All the different populations that live together in an area." },
+              { term: "Population", def: "A group of individuals that belong to the same species and live in the same area." },
+              { term: "Biotic Factors", def: "Living parts of an ecosystem (e.g., plants, animals, bacteria)." },
+              { term: "Abiotic Factors", def: "Non-living parts of an ecosystem (e.g., sunlight, temperature, water, soil)." }
+            ]
+          },
+          {
+            id: 'energy-flow',
+            title: 'Energy & Trophic Levels',
+            icon: <Icons.Zap className="w-5 h-5 text-yellow-500" />,
+            items: [
+              { term: "Producers", def: "Organisms that make their own food (autotrophs), usually through photosynthesis." },
+              { term: "Consumers", def: "Organisms that eat other organisms for energy (heterotrophs)." },
+              { term: "Trophic Levels", def: "Steps in a food chain or food web (Producers → Primary Consumers → Secondary Consumers)." },
+              { term: "Energy Transfer", def: "Only about 10% of energy is passed to the next trophic level; 90% is lost as heat." },
+              { term: "Food Chain", def: "A linear sequence showing who eats whom." },
+              { term: "Food Web", def: "A complex network of interconnected food chains." },
+              { term: "Photosynthesis", def: "Process by which plants use sunlight, water, and CO2 to make glucose and oxygen." },
+              { term: "Respiration", def: "Process where organisms break down glucose using oxygen to release energy (ATP), water, and CO2." }
+            ]
+          },
+          {
+            id: 'interactions',
+            title: 'Species Interactions',
+            icon: <Icons.Brain className="w-5 h-5 text-purple-500" />,
+            items: [
+              { term: "Predation", def: "One organism (predator) kills and eats another (prey)." },
+              { term: "Competition", def: "Struggle between organisms for limited resources (food, space, mates)." },
+              { term: "Parasitism", def: "One organism benefits (parasite) while the other is harmed (host)." },
+              { term: "Mutualism", def: "Both organisms benefit from the relationship (+/+)." },
+              { term: "Commensalism", def: "One organism benefits, the other is neither helped nor harmed (+/0)." }
+            ]
+          },
+          {
+            id: 'population-dynamics',
+            title: 'Population Dynamics',
+            icon: <Icons.Globe className="w-5 h-5 text-blue-500" />,
+            items: [
+              { term: "Carrying Capacity", def: "The maximum population size an environment can sustain indefinitely." },
+              { term: "Limiting Factors", def: "Environmental factors that restrict population growth (e.g., food, water, space, predation)." }
+            ]
+          },
+          {
+            id: 'cycles-human',
+            title: 'Carbon Cycle & Human Impact',
+            icon: <Icons.AlertTriangle className="w-5 h-5 text-red-500" />,
+            items: [
+              { term: "Carbon Cycle", def: "Movement of carbon between the atmosphere, biosphere, oceans, and geosphere." },
+              { term: "Carbon Sinks", def: "Reservoirs that absorb more carbon than they release (e.g., forests, oceans)." },
+              { term: "Fossil Fuels", def: "Coal, oil, natural gas formed from ancient organic matter; burning them releases stored carbon." },
+              { term: "Greenhouse Effect", def: "Trapping of heat in the atmosphere by gases like CO2 and methane." },
+              { term: "Anthropogenic Sources", def: "Pollution or changes originating from human activity (e.g., factories, cars)." },
+              { term: "Invasive Species", def: "Non-native species that harm the ecosystem by outcompeting native species." },
+              { term: "Pesticides", def: "Chemicals used to kill pests (e.g., insects, weeds)." },
+              { term: "DDT", def: "A powerful pesticide now banned in many places; known for thinning bird eggshells." },
+              { term: "Bioaccumulation", def: "Build-up of toxins in a SINGLE organism over its lifetime." },
+              { term: "Biomagnification", def: "Increase in toxin concentration as it moves UP the food chain." },
+              { term: "Heavy Metals", def: "Toxic metals (mercury, lead) that persist in the environment and harm health." },
+              { term: "Algal Blooms (Eutrophication)", def: "Rapid algae growth caused by excess nutrients (nitrogen/phosphorus) from runoff, leading to oxygen depletion." }
+            ]
+          }
+        ];
 
-            return (
-              <button
-                key={idx}
-                onClick={() => handleSelect(opt)}
-                disabled={selected !== null}
-                className={btnClass}
-              >
-                {opt.term}
-              </button>
-            );
-          })}
-        </div>
+        const ALL_TERMS = TOPICS.flatMap(t => t.items);
 
-        {selected && (
-          <div className={`p-4 text-center border-t ${isCorrect ? 'bg-green-50' : 'bg-red-50'}`}>
-             <div className="mb-4">
-               {isCorrect ? (
-                 <span className="text-green-700 font-bold flex items-center justify-center gap-2"><Check /> Correct! Great job.</span>
-               ) : (
-                 <span className="text-red-700 font-bold flex items-center justify-center gap-2"><X /> Not quite. The answer was {question.term}.</span>
-               )}
-             </div>
-             <button 
-               onClick={generateQuestion}
-               className="bg-slate-800 text-white px-8 py-3 rounded-full font-bold hover:bg-slate-700 hover:scale-105 transition-transform flex items-center gap-2 mx-auto"
-             >
-               Next Clue <ChevronRight size={18} />
-             </button>
-          </div>
-        )}
-      </div>
-      
-      <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg text-sm text-yellow-800 flex gap-3">
-        <Brain className="shrink-0" />
-        <p>
-          <strong>Tip:</strong> Look for keywords. "Living" = Biotic. "Non-living" = Abiotic. "Linear" = Chain. "Network" = Web.
-        </p>
-      </div>
-    </div>
-  );
-};
+        // --- COMPONENTS ---
 
-const CheatSheet = ({ onToggleMap }) => {
-  return (
-    <div className="max-w-4xl mx-auto p-4 pb-20">
-      <div className="bg-indigo-600 text-white p-8 rounded-2xl shadow-lg mb-8 relative overflow-hidden">
-        <div className="relative z-10">
-          <h2 className="text-3xl font-bold mb-2">Study Guide & Cheat Sheet</h2>
-          <p className="text-indigo-100 mb-6">Master the definitions and connections.</p>
-          <button 
-            onClick={onToggleMap}
-            className="bg-white text-indigo-600 px-4 py-2 rounded-lg font-bold shadow-md hover:bg-indigo-50 transition-colors inline-flex items-center gap-2"
-          >
-            <Map size={18} /> View Ecosystem Diagram
-          </button>
-        </div>
-        <Globe className="absolute -bottom-10 -right-10 w-64 h-64 text-indigo-500 opacity-20 rotate-12" />
-      </div>
-
-      {/* Pro Tips Section */}
-      <div className="grid md:grid-cols-2 gap-6 mb-12">
-        <div className="bg-white p-6 rounded-xl border-l-4 border-orange-500 shadow-sm">
-          <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-slate-800">
-            <AlertTriangle className="text-orange-500" size={20} />
-            Common Confusion: Toxins
-          </h3>
-          <ul className="space-y-3 text-sm text-slate-600">
-            <li className="flex gap-2">
-              <span className="font-bold text-slate-900 bg-orange-100 px-2 py-0.5 rounded">Bioaccumulation</span> 
-              <span>Happens in <strong className="underline">one</strong> individual over time. (Getting older = more toxins).</span>
-            </li>
-            <li className="flex gap-2">
-              <span className="font-bold text-slate-900 bg-red-100 px-2 py-0.5 rounded">Biomagnification</span> 
-              <span>Happens <strong className="underline">up the food chain</strong>. (Predators have more toxins than prey).</span>
-            </li>
-          </ul>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl border-l-4 border-green-500 shadow-sm">
-          <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-slate-800">
-            <Leaf className="text-green-500" size={20} />
-            Symbiosis Shortcuts
-          </h3>
-          <ul className="space-y-3 text-sm text-slate-600">
-            <li className="flex items-center justify-between border-b pb-2">
-              <span>Mutualism</span>
-              <span className="font-mono bg-green-100 text-green-700 px-2 rounded font-bold">+ / +</span>
-            </li>
-            <li className="flex items-center justify-between border-b pb-2">
-              <span>Parasitism</span>
-              <span className="font-mono bg-red-100 text-red-700 px-2 rounded font-bold">+ / -</span>
-            </li>
-            <li className="flex items-center justify-between">
-              <span>Commensalism</span>
-              <span className="font-mono bg-blue-100 text-blue-700 px-2 rounded font-bold">+ / 0</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Topics Grid */}
-      <div className="space-y-12">
-        {TOPICS.map((topic) => (
-          <section key={topic.id} className="scroll-mt-24" id={topic.id}>
-            <div className="flex items-center gap-3 mb-6 border-b pb-2 border-slate-200">
-              <div className="bg-white p-2 rounded-lg shadow-sm border border-slate-100">
-                {topic.icon}
+        const Header = ({ setView, currentView }) => (
+          <header className="bg-slate-900 text-white p-4 sticky top-0 z-50 shadow-lg">
+            <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+              <div>
+                <h1 className="text-2xl font-bold flex items-center gap-2">
+                  <Icons.Globe className="text-green-400" />
+                  Ecology Master Challenge
+                </h1>
+                <p className="text-slate-400 text-sm">Ecosystems, Cycles, and Human Impact</p>
               </div>
-              <h2 className="text-2xl font-bold text-slate-800">{topic.title}</h2>
+              <div className="flex bg-slate-800 p-1 rounded-lg">
+                <button
+                  onClick={() => setView('quiz')}
+                  className={`px-4 py-2 rounded-md font-medium transition-all ${currentView === 'quiz' ? 'bg-green-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-700'}`}
+                >
+                  Quiz Challenge
+                </button>
+                <button
+                  onClick={() => setView('cheatsheet')}
+                  className={`px-4 py-2 rounded-md font-medium transition-all ${currentView === 'cheatsheet' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-700'}`}
+                >
+                  Cheat Sheet
+                </button>
+              </div>
             </div>
-            
-            <div className="grid md:grid-cols-2 gap-4">
-              {topic.items.map((item, i) => (
-                <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
-                  <h4 className="font-bold text-indigo-700 text-lg mb-2 group-hover:text-indigo-600 flex justify-between">
-                    {item.term}
-                    {/* Visual cue for complex terms */}
-                    {['DDT', 'Pesticides', 'Bioaccumulation'].includes(item.term) && <Skull size={16} className="text-slate-300" />}
-                  </h4>
-                  <p className="text-slate-600 leading-relaxed text-sm">
-                    {item.def}
-                  </p>
+          </header>
+        );
+
+        const DiagramModal = ({ isOpen, onClose }) => {
+          if (!isOpen) return null;
+          return (
+            <div className="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4 backdrop-blur-sm" onClick={onClose}>
+              <div className="bg-white rounded-xl overflow-hidden max-w-3xl w-full shadow-2xl animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
+                <div className="bg-slate-100 p-3 border-b flex justify-between items-center">
+                  <h3 className="font-bold text-slate-800">Ecosystem & Carbon Cycle Map</h3>
+                  <button onClick={onClose} className="p-1 hover:bg-slate-200 rounded-full"><Icons.X className="w-6 h-6" /></button>
                 </div>
-              ))}
+                <div className="p-6 overflow-x-auto bg-slate-50 flex justify-center">
+                  <svg width="600" height="400" viewBox="0 0 600 400" className="max-w-full">
+                    {/* Background elements */}
+                    <rect width="600" height="400" fill="#f0f9ff" />
+                    <path d="M0,300 Q150,280 300,320 T600,300 V400 H0 Z" fill="#e2e8f0" /> {/* Ground */}
+                    <circle cx="50" cy="50" r="30" fill="#facc15" opacity="0.8" /> {/* Sun */}
+                    
+                    {/* Arrows */}
+                    <defs>
+                      <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#64748b" />
+                      </marker>
+                      <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#ef4444" />
+                      </marker>
+                    </defs>
+
+                    {/* Photosynthesis */}
+                    <path d="M70,70 Q100,150 120,220" stroke="#facc15" strokeWidth="3" strokeDasharray="5,5" markerEnd="url(#arrow)" />
+                    <text x="90" y="140" fontSize="10" fill="#b45309">Energy</text>
+
+                    {/* Carbon Cycle Lines */}
+                    <path d="M450,250 Q480,150 400,100" stroke="#ef4444" strokeWidth="2" markerEnd="url(#arrowRed)" />
+                    <text x="460" y="180" fontSize="10" fill="#991b1b">Combustion (CO₂)</text>
+                    
+                    <path d="M150,220 Q150,150 200,100" stroke="#ef4444" strokeWidth="2" markerEnd="url(#arrowRed)" />
+                    <text x="120" y="160" fontSize="10" fill="#991b1b">Respiration (CO₂)</text>
+
+                    <path d="M300,100 Q250,150 200,220" stroke="#22c55e" strokeWidth="2" markerEnd="url(#arrow)" />
+                    <text x="260" y="160" fontSize="10" fill="#166534">Photosynthesis (Absorbs CO₂)</text>
+
+                    {/* Elements */}
+                    <g transform="translate(120, 220)"> {/* Producer */}
+                      <path d="M10,40 L10,0 L30,20 M10,0 L-10,20" stroke="#16a34a" strokeWidth="4" fill="none"/>
+                      <text x="-15" y="60" className="text-xs font-bold" fill="#15803d">Producer</text>
+                    </g>
+
+                    <g transform="translate(250, 240)"> {/* Consumer */}
+                      <circle cx="20" cy="20" r="15" fill="#f97316" />
+                      <text x="-10" y="55" className="text-xs font-bold" fill="#c2410c">Consumer</text>
+                    </g>
+
+                    <g transform="translate(420, 250)"> {/* Factory */}
+                      <rect x="0" y="0" width="40" height="30" fill="#475569" />
+                      <rect x="5" y="-20" width="10" height="20" fill="#475569" />
+                      <text x="-10" y="50" className="text-xs font-bold" fill="#1e293b">Fossil Fuels</text>
+                    </g>
+
+                    {/* Trophic Transfer */}
+                    <path d="M150,250 L230,250" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)" />
+                    <text x="160" y="245" fontSize="10" fill="#475569">Energy (10%)</text>
+                    
+                  </svg>
+                </div>
+              </div>
             </div>
-          </section>
-        ))}
-      </div>
-    </div>
-  );
-};
+          );
+        };
 
-const App = () => {
-  const [view, setView] = useState('quiz');
-  const [showMap, setShowMap] = useState(false);
+        const Quiz = ({ onToggleMap }) => {
+          const [question, setQuestion] = useState(null);
+          const [options, setOptions] = useState([]);
+          const [selected, setSelected] = useState(null);
+          const [isCorrect, setIsCorrect] = useState(null);
+          const [streak, setStreak] = useState(0);
+          const [animate, setAnimate] = useState(false);
 
-  return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
-      <Header setView={setView} currentView={view} />
-      
-      <main className="pt-6">
-        {view === 'quiz' ? (
-          <Quiz onToggleMap={() => setShowMap(true)} />
-        ) : (
-          <CheatSheet onToggleMap={() => setShowMap(true)} />
-        )}
-      </main>
+          const generateQuestion = () => {
+            setSelected(null);
+            setIsCorrect(null);
+            setAnimate(false);
 
-      <DiagramModal isOpen={showMap} onClose={() => setShowMap(false)} />
-      
-      <footer className="bg-slate-900 text-slate-400 py-8 text-center mt-12">
-        <p className="mb-2">Ecology & Ecosystems Study Tool</p>
-        <p className="text-xs opacity-50">Covers 30+ curricular topics from Population Dynamics to Human Impact</p>
-      </footer>
-    </div>
-  );
-};
+            const target = ALL_TERMS[Math.floor(Math.random() * ALL_TERMS.length)];
+            const distractors = [];
+            while (distractors.length < 3) {
+              const d = ALL_TERMS[Math.floor(Math.random() * ALL_TERMS.length)];
+              if (d.term !== target.term && !distractors.includes(d)) {
+                distractors.push(d);
+              }
+            }
+            const allOptions = [target, ...distractors].sort(() => Math.random() - 0.5);
+            setQuestion(target);
+            setOptions(allOptions);
+            
+            setTimeout(() => setAnimate(true), 50);
+          };
 
-export default App;
+          useEffect(() => {
+            generateQuestion();
+          }, []);
+
+          const handleSelect = (option) => {
+            if (selected) return;
+            setSelected(option);
+            const correct = option.term === question.term;
+            setIsCorrect(correct);
+            if (correct) setStreak(s => s + 1);
+            else setStreak(0);
+          };
+
+          if (!question) return <div>Loading...</div>;
+
+          return (
+            <div className="max-w-2xl mx-auto p-4 space-y-6">
+              <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                <div className="flex items-center gap-2">
+                   <span className="font-bold text-slate-700">Streak:</span>
+                   <div className="flex">
+                     {[...Array(Math.min(streak, 5))].map((_, i) => (
+                       <div key={i} className="w-2 h-6 bg-green-500 mx-0.5 rounded-full animate-pulse" />
+                     ))}
+                   </div>
+                   <span className="ml-2 font-mono text-lg">{streak}</span>
+                </div>
+                <button 
+                  onClick={onToggleMap}
+                  className="text-blue-600 font-bold hover:underline flex items-center gap-1 text-sm"
+                >
+                  <Icons.Map size={16} /> Toggle Ecosystem Map
+                </button>
+              </div>
+
+              <div className={`bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-500 ${animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                <div className="bg-slate-800 p-6 text-white min-h-[140px] flex items-center justify-center text-center">
+                  <div>
+                    <span className="uppercase tracking-widest text-xs font-bold text-slate-400 mb-2 block">Identify this Concept</span>
+                    <h2 className="text-xl md:text-2xl font-medium leading-relaxed">
+                      "{question.def}"
+                    </h2>
+                  </div>
+                </div>
+
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {options.map((opt, idx) => {
+                    let btnClass = "p-4 rounded-xl border-2 text-left transition-all hover:bg-slate-50 font-semibold text-slate-700 ";
+                    
+                    if (selected) {
+                      if (opt.term === question.term) btnClass += "bg-green-100 border-green-500 text-green-800";
+                      else if (opt === selected) btnClass += "bg-red-100 border-red-500 text-red-800";
+                      else btnClass += "border-slate-100 opacity-50";
+                    } else {
+                      btnClass += "border-slate-200 hover:border-blue-400 hover:shadow-md cursor-pointer";
+                    }
+
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleSelect(opt)}
+                        disabled={selected !== null}
+                        className={btnClass}
+                      >
+                        {opt.term}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {selected && (
+                  <div className={`p-4 text-center border-t ${isCorrect ? 'bg-green-50' : 'bg-red-50'}`}>
+                     <div className="mb-4">
+                       {isCorrect ? (
+                         <span className="text-green-700 font-bold flex items-center justify-center gap-2"><Icons.Check /> Correct! Great job.</span>
+                       ) : (
+                         <span className="text-red-700 font-bold flex items-center justify-center gap-2"><Icons.X /> Not quite. The answer was {question.term}.</span>
+                       )}
+                     </div>
+                     <button 
+                       onClick={generateQuestion}
+                       className="bg-slate-800 text-white px-8 py-3 rounded-full font-bold hover:bg-slate-700 hover:scale-105 transition-transform flex items-center gap-2 mx-auto"
+                     >
+                       Next Clue <Icons.ChevronRight size={18} />
+                     </button>
+                  </div>
+                )}
+              </div>
+              
+              <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg text-sm text-yellow-800 flex gap-3">
+                <Icons.Brain className="shrink-0" />
+                <p>
+                  <strong>Tip:</strong> Look for keywords. "Living" = Biotic. "Non-living" = Abiotic. "Linear" = Chain. "Network" = Web.
+                </p>
+              </div>
+            </div>
+          );
+        };
+
+        const CheatSheet = ({ onToggleMap }) => {
+          return (
+            <div className="max-w-4xl mx-auto p-4 pb-20">
+              <div className="bg-indigo-600 text-white p-8 rounded-2xl shadow-lg mb-8 relative overflow-hidden">
+                <div className="relative z-10">
+                  <h2 className="text-3xl font-bold mb-2">Study Guide & Cheat Sheet</h2>
+                  <p className="text-indigo-100 mb-6">Master the definitions and connections.</p>
+                  <button 
+                    onClick={onToggleMap}
+                    className="bg-white text-indigo-600 px-4 py-2 rounded-lg font-bold shadow-md hover:bg-indigo-50 transition-colors inline-flex items-center gap-2"
+                  >
+                    <Icons.Map size={18} /> View Ecosystem Diagram
+                  </button>
+                </div>
+                <Icons.Globe className="absolute -bottom-10 -right-10 w-64 h-64 text-indigo-500 opacity-20 rotate-12" />
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6 mb-12">
+                <div className="bg-white p-6 rounded-xl border-l-4 border-orange-500 shadow-sm">
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-slate-800">
+                    <Icons.AlertTriangle className="text-orange-500" size={20} />
+                    Common Confusion: Toxins
+                  </h3>
+                  <ul className="space-y-3 text-sm text-slate-600">
+                    <li className="flex gap-2">
+                      <span className="font-bold text-slate-900 bg-orange-100 px-2 py-0.5 rounded">Bioaccumulation</span> 
+                      <span>Happens in <strong className="underline">one</strong> individual over time. (Getting older = more toxins).</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="font-bold text-slate-900 bg-red-100 px-2 py-0.5 rounded">Biomagnification</span> 
+                      <span>Happens <strong className="underline">up the food chain</strong>. (Predators have more toxins than prey).</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-6 rounded-xl border-l-4 border-green-500 shadow-sm">
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-slate-800">
+                    <Icons.Leaf className="text-green-500" size={20} />
+                    Symbiosis Shortcuts
+                  </h3>
+                  <ul className="space-y-3 text-sm text-slate-600">
+                    <li className="flex items-center justify-between border-b pb-2">
+                      <span>Mutualism</span>
+                      <span className="font-mono bg-green-100 text-green-700 px-2 rounded font-bold">+ / +</span>
+                    </li>
+                    <li className="flex items-center justify-between border-b pb-2">
+                      <span>Parasitism</span>
+                      <span className="font-mono bg-red-100 text-red-700 px-2 rounded font-bold">+ / -</span>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span>Commensalism</span>
+                      <span className="font-mono bg-blue-100 text-blue-700 px-2 rounded font-bold">+ / 0</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="space-y-12">
+                {TOPICS.map((topic) => (
+                  <section key={topic.id} className="scroll-mt-24" id={topic.id}>
+                    <div className="flex items-center gap-3 mb-6 border-b pb-2 border-slate-200">
+                      <div className="bg-white p-2 rounded-lg shadow-sm border border-slate-100">
+                        {topic.icon}
+                      </div>
+                      <h2 className="text-2xl font-bold text-slate-800">{topic.title}</h2>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {topic.items.map((item, i) => (
+                        <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+                          <h4 className="font-bold text-indigo-700 text-lg mb-2 group-hover:text-indigo-600 flex justify-between">
+                            {item.term}
+                            {['DDT', 'Pesticides', 'Bioaccumulation'].includes(item.term) && <Icons.Skull size={16} className="text-slate-300" />}
+                          </h4>
+                          <p className="text-slate-600 leading-relaxed text-sm">
+                            {item.def}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            </div>
+          );
+        };
+
+        const App = () => {
+          const [view, setView] = useState('quiz');
+          const [showMap, setShowMap] = useState(false);
+
+          return (
+            <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+              <Header setView={setView} currentView={view} />
+              
+              <main className="pt-6">
+                {view === 'quiz' ? (
+                  <Quiz onToggleMap={() => setShowMap(true)} />
+                ) : (
+                  <CheatSheet onToggleMap={() => setShowMap(true)} />
+                )}
+              </main>
+
+              <DiagramModal isOpen={showMap} onClose={() => setShowMap(false)} />
+              
+              <footer className="bg-slate-900 text-slate-400 py-8 text-center mt-12">
+                <p className="mb-2">Ecology & Ecosystems Study Tool</p>
+                <p className="text-xs opacity-50">Covers 30+ curricular topics from Population Dynamics to Human Impact</p>
+              </footer>
+            </div>
+          );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
