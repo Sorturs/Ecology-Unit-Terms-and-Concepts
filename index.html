@@ -344,8 +344,18 @@
                                <span className="text-red-700 font-bold text-xl flex items-center justify-center gap-2">
                                  <Icons.X className="w-8 h-8" /> Not quite.
                                </span>
-                               <p className="text-slate-600">The correct answer was:</p>
-                               <p className="text-2xl font-bold text-slate-900">{question.term}</p>
+                               
+                               {/* Show what user typed if anything */}
+                               {userInput && (
+                                 <p className="text-slate-500 text-sm">
+                                   You wrote: <span className="line-through decoration-red-500 decoration-2">{userInput}</span>
+                                 </p>
+                               )}
+
+                               <div className="mt-4 p-3 bg-red-100 rounded-lg inline-block">
+                                 <p className="text-xs text-red-600 font-bold uppercase tracking-wider mb-1">Correct Answer</p>
+                                 <p className="text-2xl font-bold text-slate-900">{question.term}</p>
+                               </div>
                              </div>
                            )}
                          </div>
